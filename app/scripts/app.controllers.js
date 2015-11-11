@@ -4,8 +4,11 @@
     .module('app.controllers', [])
     .controller('main.controller', [
       '$scope',
-      'Room',
+      'RoomService',
+      'MessageService',
+      'FormatTimeService',
       '$uibModal',
+      '$cookies',
       MainController
     ])
     .controller('newRoomModal.controller', [
@@ -19,12 +22,23 @@
       NewUserModalController
     ]);
 
-    function MainController($scope, Room, $uibModal) {
-      $scope.currentRoom = null;
-      $scope.rooms = Room.all;
+    function MainController(
+      $scope,
+      RoomService,
+      MessageService,
+      FormatTimeService,
+      $uibModal,
+      $cookies
+    ) {
 
-      var createNewRoom = Room.create;
-      var getMessages = Room.messages;
+      $scope.rooms = RoomService.all;
+      $scope.currentRoom = null;
+      $scope.newMessage = {};
+
+      var createNewRoom = RoomService.create;
+      var getMessages = RoomService.messages;
+      var sendMessage = MessageService.send;
+      var formatTime = FormatTimeService.formatTime;
 
       $scope.onNewRoomClick = function() {
         var modalInstance = $uibModal.open({
@@ -43,6 +57,17 @@
         e.preventDefault();
         $scope.currentRoom = room;
         $scope.messages = getMessages(room.$id);
+      };
+
+      $scope.onSendMessageSubmit = function(valid) {
+        if (valid) {
+          $scope.newMessage.roomId = $scope.currentRoom.$id;
+          $scope.newMessage.sentAt = formatTime(new Date());
+          $scope.newMessage.username = $cookies.get('blocChatCurrentUser');
+          
+          sendMessage($scope.newMessage);
+          $scope.newMessage = {};
+        }
       };
     }
 

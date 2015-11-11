@@ -3,8 +3,8 @@
   angular
     .module('app', [
       'app.controllers',
+      'app.services',
       'ui.router',
-      'firebase',
       'ui.bootstrap',
       'ngCookies'
     ])
@@ -17,10 +17,6 @@
       '$stateProvider',
       '$locationProvider',
       MainConfig
-    ])
-    .factory('Room', [
-      '$firebaseArray',
-      RoomFactory
     ]);
 
   function CookiesService($cookies, $uibModal) {
@@ -53,30 +49,6 @@
         templateUrl: 'templates/main.html'
       }
     );
-  }
-
-  function RoomFactory($firebaseArray) {
-    var firebaseRef = new Firebase('bloc-chat-angular.firebaseIO.com');
-
-    var rooms = $firebaseArray(firebaseRef.child('rooms'));
-    
-    function createNewRoom(newRoom) {
-      rooms.$add(newRoom);
-    }
-
-    function getMessages(roomId) {
-      return $firebaseArray(
-        firebaseRef.child('messages')
-        .orderByChild('roomId')
-        .equalTo(roomId)
-      );
-    }
-
-    return {
-      all: rooms,
-      create: createNewRoom,
-      messages: getMessages
-    }
   }
 
 })();
