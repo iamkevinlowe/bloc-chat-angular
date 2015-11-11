@@ -49,18 +49,27 @@
       rooms.$add(newRoom);
     }
 
+    function getMessages(roomId) {
+      return $firebaseArray(
+        firebaseRef.child('messages')
+        .orderByChild('roomId')
+        .equalTo(roomId)
+      );
+    }
+
     return {
       all: rooms,
-      create: createNewRoom
+      create: createNewRoom,
+      messages: getMessages
     }
   }
 
   function MainController($scope, Room, $uibModal) {
+    $scope.currentRoom = null;
     $scope.rooms = Room.all;
 
     var createNewRoom = Room.create;
-
-    $scope.currentRoom = null;
+    var getMessages = Room.messages;
 
     $scope.onNewRoomClick = function() {
       var modalInstance = $uibModal.open({
@@ -75,8 +84,10 @@
       });
     }
 
-    $scope.onRoomClick = function(room) {
+    $scope.onRoomClick = function(e, room) {
+      e.preventDefault();
       $scope.currentRoom = room;
+      $scope.messages = getMessages(room.$id);
     };
   }
 
