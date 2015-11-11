@@ -2,26 +2,41 @@
 
   angular
     .module('app', [
+      'app.controllers',
       'ui.router',
       'firebase',
-      'ui.bootstrap'
+      'ui.bootstrap',
+      'ngCookies'
     ])
-    .config(MainConfig)
+    .run([
+      '$cookies',
+      '$uibModal',
+      CookiesService
+    ])
+    .config([
+      '$stateProvider',
+      '$locationProvider',
+      MainConfig
+    ])
     .factory('Room', [
       '$firebaseArray',
       RoomFactory
-    ])
-    .controller('main.controller', [
-      '$scope',
-      'Room',
-      '$uibModal',
-      MainController
-    ])
-    .controller('newRoomModal.controller', [
-      '$scope',
-      '$uibModalInstance',
-      NewRoomModalController
     ]);
+
+  function CookiesService($cookies, $uibModal) {
+    var currentUser = $cookies.get('blocChatCurrentUser');
+    if (!currentUser || currentUser === '') {
+      var modalInstance = $uibModal.open({
+        templateUrl: 'templates/newUserModal.html',
+        controller: 'newUserModal.controller',
+        backdrop: 'static'
+      });
+      
+      modalInstance.result.then(function(newUser) {
+        $cookies.put('blocChatCurrentUser', newUser.name);
+      });
+    }
+  }
 
   function MainConfig($stateProvider, $locationProvider) {
     $locationProvider
@@ -62,46 +77,6 @@
       create: createNewRoom,
       messages: getMessages
     }
-  }
-
-  function MainController($scope, Room, $uibModal) {
-    $scope.currentRoom = null;
-    $scope.rooms = Room.all;
-
-    var createNewRoom = Room.create;
-    var getMessages = Room.messages;
-
-    $scope.onNewRoomClick = function() {
-      var modalInstance = $uibModal.open({
-        templateUrl: 'templates/newRoomModal.html',
-        controller: 'newRoomModal.controller'
-      });
-
-      modalInstance.result.then(function(newRoom) {
-        createNewRoom(newRoom);
-      }, function() {
-        console.log("Dismissed");
-      });
-    }
-
-    $scope.onRoomClick = function(e, room) {
-      e.preventDefault();
-      $scope.currentRoom = room;
-      $scope.messages = getMessages(room.$id);
-    };
-  }
-
-  function NewRoomModalController($scope, $uibModalInstance) {
-    $scope.onNewRoomSubmit = function(valid) {
-      if (valid) {
-        $uibModalInstance.close($scope.newRoom);
-      }
-    };
-
-    $scope.onCancelClick = function(e) {
-      e.preventDefault();
-      $uibModalInstance.dismiss('cancel');
-    };
   }
 
 })();
