@@ -1,9 +1,10 @@
 <div class="row">
   <div class="col-sm-3" id="list-pane">
     <div class="heading">
-      <span class="h3">Bloc Chat</span>
-      <button class="btn btn-default" ng-click="onNewRoomClick()">New room</button>
+      <h2>Bloc Chat</h2>
     </div>
+
+    <button class="btn btn-default" ng-click="onNewRoomClick()">New room</button>
 
     <ul>
       <li ng-repeat="room in rooms">
@@ -14,15 +15,17 @@
 
   <div class="col-sm-9" id="detail-pane">
     <div class="current-room" ng-if="currentRoom">
-      <h4>{{currentRoom.name}}</h4>
+      <div class="heading">
+        <h3>{{currentRoom.name}}</h3>
+      </div>
 
       <div ng-repeat="message in messages" class="row message">
         <div class="col-sm-10 text-left">
-          <strong>{{message.username}}</strong>
+          <strong class="message-username">{{message.username}}</strong>
           <p>{{message.content}}</p>
         </div>
         <div class="col-sm-2 text-right">
-          <p class="text-muted">{{message.sentAt}}</p>
+          <p>{{message.sentAt}}</p>
         </div>
       </div>
 
@@ -48,6 +51,10 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <div class="select-room" ng-hide="currentRoom">
+      <h1>Select a chat room to begin.</h1>
     </div>
   </div>
 </div>
